@@ -1,12 +1,30 @@
-name: Hello world
-on:
- push: 
-   branches: main
-jobs:
-  demo:
-   runs-on: ubuntu-latest
+name: Axios Supply Chain Scan
 
-   steps:
-     - name: Greetings
-       run: echo "Hello World!"
-       
+on:
+  workflow_dispatch:   # Run only when manually triggered
+  push:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'yarn.lock'
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'yarn.lock'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+
+      - name: Check for malicious versions
+        run: |
+          if grep -qE "axios@(1\.14\.1|0\.30\.4)|plain-crypto-js@4\.2\.1" package-lock.json yarn.lock; then
+            echo "❌ Repository affected: malicious Axios version detected!"
+            exit 1
+          else
+            echo "✅ Repository clean: no malicious Axios versions found."
+          fi
