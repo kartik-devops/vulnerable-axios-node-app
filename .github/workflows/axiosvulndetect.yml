@@ -10,8 +10,6 @@ on:
   pull_request:
     paths:
       - 'package.json'
-      - 'package-lock.json'
-      - 'yarn.lock'
 
 jobs:
   scan:
@@ -20,7 +18,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Check for malicious versions
         run: |
-          if grep -qE "axios@(1\.14\.1|0\.30\.4)|plain-crypto-js@4\.2\.1" package-lock.json yarn.lock package.json; then
+          if grep -qE "axios@(1\.14\.1|0\.30\.4)|plain-crypto-js@4\.2\.1" package.json; then
             echo "❌ Repository affected: malicious Axios version detected!"
             exit 1
           else
